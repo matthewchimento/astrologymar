@@ -305,11 +305,19 @@
   }
 
   .chart-card .rising {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--gold-dim);
     font-size: 0.8rem;
     letter-spacing: 0.05em;
     margin-bottom: 16px;
+  }
+
+  .chart-card .rising .glyph {
+    font-size: 1rem;
+    width: auto;
+    color: var(--gold-dim);
   }
 
   .chart-card ul {
@@ -320,11 +328,12 @@
 
   .chart-card li {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 6px 0;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
     border-top: 1px solid rgba(255,255,255,0.06);
     font-size: 0.92rem;
+    line-height: 1.5;
     color: var(--muted);
   }
 
@@ -332,14 +341,16 @@
 
   .chart-card .glyph {
     color: var(--gold);
-    width: 1.1em;
+    font-size: 1.2rem;
+    width: 1.3em;
     text-align: center;
     flex-shrink: 0;
+    line-height: 1.4;
   }
 
-  .chart-card .planet {
+  .chart-card li strong {
     color: var(--text);
-    min-width: 68px;
+    font-weight: 600;
   }
 
   .synastry {
@@ -436,11 +447,11 @@
 
     <!-- 1 -->
     <div class="entry" data-side="left">
-      <div class="node">♆</div>
+      <div class="node">♆︎</div>
       <div class="card">
         <span class="entry-date">February 5, 2026</span>
         <h3>Where It Started</h3>
-        <p class="teaser">Ten days before we met, Neptune slipped into Aries for the first time since the 1860s — and it didn't land just anywhere. Aries is exactly where my natal Saturn (♄) lives.</p>
+        <p class="teaser">Ten days before we met, Neptune slipped into Aries for the first time since the 1860s — and it didn't land just anywhere. Aries is exactly where my natal Saturn (♄︎) lives.</p>
         <button class="expand-btn"><span class="arrow">▾</span> the stars, in detail</button>
         <div class="details">
           <p>Neptune spends about 14 years in a sign, so a Neptune ingress is rare on its own — the last time it crossed into Aries, the U.S. Civil War hadn't happened yet. What makes January 26, 2026 personal is where it landed: right on top of my own natal Saturn, my commitment planet, in the same sign. Transiting Neptune conjunct natal Saturn is a dissolve-and-rebuild transit — rigid old ideas about structure and responsibility soften, and something more intuitive, more faithful, takes their place. Ten days into that, on February 5th, I met you. Meanwhile, transiting Pluto — deep into its decades-long crossing of Aquarius — was already sitting on three of my natal planets at once: Venus, Uranus, and Neptune. My whole capacity for love, independence, and idealism was mid-transformation before you ever walked in.</p>
@@ -450,11 +461,11 @@
 
     <!-- 2 -->
     <div class="entry" data-side="right">
-      <div class="node">♄</div>
+      <div class="node">♄︎</div>
       <div class="card">
         <span class="entry-date">February 14, 2026</span>
         <h3>Valentine's Day — Our Anniversary</h3>
-        <p class="teaser">The day before, Saturn finished its own move into Aries — walking back over the same sign as my natal Saturn. Three days later, an eclipse hit Aquarius, exactly where both of our Venuses (♀) live.</p>
+        <p class="teaser">The day before, Saturn finished its own move into Aries — walking back over the same sign as my natal Saturn. Three days later, an eclipse hit Aquarius, exactly where both of our Venuses (♀︎) live.</p>
         <button class="expand-btn"><span class="arrow">▾</span> the stars, in detail</button>
         <div class="details">
           <p>Saturn doesn't rush. It spends about two and a half years in a sign, and wherever it lands, it asks the same question: are you willing to build something real here? Its ingress on February 13, 2026 meant transiting Saturn spent the next couple of years crossing back over the sign of my own natal Saturn — a Saturn-testing-Saturn conversation about whether the commitments I make are actually built to last. We made it official the very next day. Then, on February 17th, an annular solar eclipse — 2026's first — landed in Aquarius: the sign of your Venus and mine, at the same time, plus my Uranus and Neptune besides. Eclipses are new moons at full volume, and this one hit both of our love planets simultaneously. Whatever got set in motion that week, the charts were doing a lot of agreeing.</p>
@@ -464,7 +475,7 @@
 
     <!-- 3 -->
     <div class="entry" data-side="left">
-      <div class="node">♍</div>
+      <div class="node">♍︎</div>
       <div class="card">
         <span class="entry-date">March 14, 2026</span>
         <h3>One Month</h3>
@@ -478,7 +489,7 @@
 
     <!-- 4 -->
     <div class="entry" data-side="right">
-      <div class="node">♄</div>
+      <div class="node">♄︎</div>
       <div class="card">
         <span class="entry-date">April 14, 2026</span>
         <h3>Two Months</h3>
@@ -492,7 +503,7 @@
 
     <!-- 5 -->
     <div class="entry" data-side="left">
-      <div class="node">♄</div>
+      <div class="node">♄︎</div>
       <div class="card">
         <span class="entry-date">May 14, 2026</span>
         <h3>Three Months</h3>
@@ -506,7 +517,7 @@
 
     <!-- 6 -->
     <div class="entry" data-side="right">
-      <div class="node">♃</div>
+      <div class="node">♃︎</div>
       <div class="card">
         <span class="entry-date">June 14, 2026</span>
         <h3>Four Months</h3>
@@ -520,7 +531,7 @@
 
     <!-- 7 -->
     <div class="entry" data-side="left">
-      <div class="node">♃</div>
+      <div class="node">♃︎</div>
       <div class="card">
         <span class="entry-date">July 14, 2026</span>
         <h3>Five Months</h3>
@@ -534,7 +545,7 @@
 
     <!-- 8 -->
     <div class="entry" data-side="right">
-      <div class="node">♌</div>
+      <div class="node">♌︎</div>
       <div class="card">
         <span class="entry-date">August 14, 2026</span>
         <h3>Six Months</h3>
@@ -548,7 +559,7 @@
 
     <!-- 9 -->
     <div class="entry" data-side="left">
-      <div class="node">♍</div>
+      <div class="node">♍︎</div>
       <div class="card">
         <span class="entry-date">September 14, 2026</span>
         <h3>Seven Months</h3>
@@ -562,7 +573,7 @@
 
     <!-- 10 -->
     <div class="entry" data-side="right">
-      <div class="node">♎</div>
+      <div class="node">♎︎</div>
       <div class="card">
         <span class="entry-date">October 14, 2026</span>
         <h3>Eight Months</h3>
@@ -576,7 +587,7 @@
 
     <!-- 11 -->
     <div class="entry" data-side="left">
-      <div class="node">♏</div>
+      <div class="node">♏︎</div>
       <div class="card">
         <span class="entry-date">November 14, 2026</span>
         <h3>Nine Months</h3>
@@ -590,7 +601,7 @@
 
     <!-- 12 -->
     <div class="entry" data-side="right">
-      <div class="node">♐</div>
+      <div class="node">♐︎</div>
       <div class="card">
         <span class="entry-date">December 14, 2026</span>
         <h3>Ten Months</h3>
@@ -612,35 +623,35 @@
     <div class="chart-grid">
       <div class="chart-card">
         <h3>Matt</h3>
-        <span class="rising">Leo Rising</span>
+        <span class="rising"><span class="glyph">♌︎</span> Leo Rising — warm, magnetic first impression</span>
         <ul>
-          <li><span class="glyph">☉</span><span class="planet">Sun</span> Capricorn</li>
-          <li><span class="glyph">☽</span><span class="planet">Moon</span> Sagittarius</li>
-          <li><span class="glyph">☿</span><span class="planet">Mercury</span> Capricorn</li>
-          <li><span class="glyph">♀</span><span class="planet">Venus</span> Aquarius</li>
-          <li><span class="glyph">♂</span><span class="planet">Mars</span> Libra</li>
-          <li><span class="glyph">♃</span><span class="planet">Jupiter</span> Pisces</li>
-          <li><span class="glyph">♄</span><span class="planet">Saturn</span> Aries</li>
-          <li><span class="glyph">♅</span><span class="planet">Uranus</span> Aquarius</li>
-          <li><span class="glyph">♆</span><span class="planet">Neptune</span> Aquarius</li>
-          <li><span class="glyph">♇</span><span class="planet">Pluto</span> Sagittarius</li>
+          <li><span class="glyph">♑︎</span><span><strong>Sun in Capricorn.</strong> Quietly ambitious, built for the long game.</span></li>
+          <li><span class="glyph">♐︎</span><span><strong>Moon in Sagittarius.</strong> Needs freedom to feel safe.</span></li>
+          <li><span class="glyph">♑︎</span><span><strong>Mercury in Capricorn.</strong> Direct, practical, dry humor.</span></li>
+          <li><span class="glyph">♒︎</span><span><strong>Venus in Aquarius.</strong> Loves through friendship, needs independence.</span></li>
+          <li><span class="glyph">♎︎</span><span><strong>Mars in Libra.</strong> Fights fair, chases harmony.</span></li>
+          <li><span class="glyph">♓︎</span><span><strong>Jupiter in Pisces.</strong> Faith, compassion, the long view.</span></li>
+          <li><span class="glyph">♈︎</span><span><strong>Saturn in Aries.</strong> Discipline learned through courage.</span></li>
+          <li><span class="glyph">♒︎</span><span><strong>Uranus in Aquarius.</strong> Awakening through community and ideals.</span></li>
+          <li><span class="glyph">♒︎</span><span><strong>Neptune in Aquarius.</strong> Dreams shaped by ideals and humanity.</span></li>
+          <li><span class="glyph">♐︎</span><span><strong>Pluto in Sagittarius.</strong> Transformation through the search for truth.</span></li>
         </ul>
       </div>
 
       <div class="chart-card">
         <h3>Mar</h3>
-        <span class="rising">Gemini Rising</span>
+        <span class="rising"><span class="glyph">♊︎</span> Gemini Rising — quick, curious first impression</span>
         <ul>
-          <li><span class="glyph">☉</span><span class="planet">Sun</span> Capricorn</li>
-          <li><span class="glyph">☽</span><span class="planet">Moon</span> Aries</li>
-          <li><span class="glyph">☿</span><span class="planet">Mercury</span> Capricorn</li>
-          <li><span class="glyph">♀</span><span class="planet">Venus</span> Aquarius</li>
-          <li><span class="glyph">♂</span><span class="planet">Mars</span> Capricorn</li>
-          <li><span class="glyph">♃</span><span class="planet">Jupiter</span> Sagittarius</li>
-          <li><span class="glyph">♄</span><span class="planet">Saturn</span> Pisces</li>
-          <li><span class="glyph">♅</span><span class="planet">Uranus</span> Capricorn</li>
-          <li><span class="glyph">♆</span><span class="planet">Neptune</span> Capricorn</li>
-          <li><span class="glyph">♇</span><span class="planet">Pluto</span> Sagittarius</li>
+          <li><span class="glyph">♑︎</span><span><strong>Sun in Capricorn.</strong> Quietly ambitious, built to last.</span></li>
+          <li><span class="glyph">♈︎</span><span><strong>Moon in Aries.</strong> Feels first, acts fast.</span></li>
+          <li><span class="glyph">♑︎</span><span><strong>Mercury in Capricorn.</strong> Direct, practical, dry humor.</span></li>
+          <li><span class="glyph">♒︎</span><span><strong>Venus in Aquarius.</strong> Loves through friendship, needs independence.</span></li>
+          <li><span class="glyph">♑︎</span><span><strong>Mars in Capricorn.</strong> Disciplined drive, plays the long game.</span></li>
+          <li><span class="glyph">♐︎</span><span><strong>Jupiter in Sagittarius.</strong> Expansive optimism, always reaching further.</span></li>
+          <li><span class="glyph">♓︎</span><span><strong>Saturn in Pisces.</strong> Discipline wrapped in compassion.</span></li>
+          <li><span class="glyph">♑︎</span><span><strong>Uranus in Capricorn.</strong> Restructuring what tradition looks like.</span></li>
+          <li><span class="glyph">♑︎</span><span><strong>Neptune in Capricorn.</strong> Dreams given real-world form.</span></li>
+          <li><span class="glyph">♐︎</span><span><strong>Pluto in Sagittarius.</strong> Transformation through the search for truth.</span></li>
         </ul>
       </div>
     </div>
