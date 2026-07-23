@@ -46,18 +46,18 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
-  .star {
-    position: absolute;
-    background: #fff;
-    border-radius: 50%;
-    animation: twinkle 4s ease-in-out infinite;
-  }
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.15; }
-    50% { opacity: 1; }
+  #glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%),
+                rgba(227, 193, 126, 0.10), transparent 62%);
   }
 
   main {
@@ -296,7 +296,8 @@
 </head>
 <body>
 
-<div id="stars"></div>
+<canvas id="stars"></canvas>
+<div id="glow"></div>
 
 <main>
   <section class="hero">
@@ -487,22 +488,135 @@
 </main>
 
 <script>
-  // Starfield
+  // Starfield: layered canvas with parallax, twinkle and the occasional shooting star
   (function() {
-    const container = document.getElementById('stars');
-    const count = window.innerWidth < 700 ? 70 : 140;
-    for (let i = 0; i < count; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      const size = Math.random() * 2 + 0.5;
-      s.style.width = size + 'px';
-      s.style.height = size + 'px';
-      s.style.top = Math.random() * 100 + '%';
-      s.style.left = Math.random() * 100 + '%';
-      s.style.animationDelay = (Math.random() * 4) + 's';
-      s.style.animationDuration = (Math.random() * 3 + 3) + 's';
-      container.appendChild(s);
+    const canvas = document.getElementById('stars');
+    const glow = document.getElementById('glow');
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let w, h, dpr;
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
+
+    function makeLayer(count, radiusRange, opacityRange, parallax) {
+      const stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random(),
+          y: Math.random(),
+          r: radiusRange[0] + Math.random() * (radiusRange[1] - radiusRange[0]),
+          baseOpacity: opacityRange[0] + Math.random() * (opacityRange[1] - opacityRange[0]),
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.4 + Math.random() * 0.7,
+        });
+      }
+      return { stars, parallax };
+    }
+
+    const density = window.innerWidth < 700 ? 0.6 : 1;
+    const layers = [
+      makeLayer(Math.round(85 * density), [0.4, 1], [0.2, 0.5], 10),
+      makeLayer(Math.round(45 * density), [0.8, 1.6], [0.35, 0.75], 20),
+      makeLayer(Math.round(18 * density), [1.4, 2.4], [0.6, 1], 34),
+    ];
+
+    let targetX = 0, targetY = 0, curX = 0, curY = 0;
+    let idleAngle = 0;
+
+    function setPointer(nx, ny) {
+      targetX = nx;
+      targetY = ny;
+      glow.style.setProperty('--mx', (50 + nx * 35) + '%');
+      glow.style.setProperty('--my', (30 + ny * 25) + '%');
+    }
+
+    if (!reduceMotion) {
+      window.addEventListener('mousemove', (e) => {
+        setPointer((e.clientX / w - 0.5) * 2, (e.clientY / h - 0.5) * 2);
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (!e.touches.length) return;
+        const t = e.touches[0];
+        setPointer((t.clientX / w - 0.5) * 2, (t.clientY / h - 0.5) * 2);
+      }, { passive: true });
+    }
+
+    let shootingStars = [];
+    let nextShootTime = performance.now() + 2500;
+    function maybeSpawnShootingStar(now) {
+      if (reduceMotion || now < nextShootTime) return;
+      shootingStars.push({
+        x: w * (0.15 + Math.random() * 0.6),
+        y: h * Math.random() * 0.3,
+        vx: -(2.2 + Math.random() * 2),
+        vy: 1.3 + Math.random() * 1.4,
+        born: now,
+        life: 650 + Math.random() * 350,
+      });
+      nextShootTime = now + 7000 + Math.random() * 9000;
+    }
+
+    function draw(now) {
+      ctx.clearRect(0, 0, w, h);
+
+      if (!reduceMotion) {
+        if (Math.abs(targetX) < 0.001 && Math.abs(targetY) < 0.001) {
+          idleAngle += 0.0015;
+          targetX = Math.sin(idleAngle) * 0.4;
+          targetY = Math.cos(idleAngle * 0.7) * 0.3;
+        }
+        curX += (targetX - curX) * 0.03;
+        curY += (targetY - curY) * 0.03;
+      }
+
+      layers.forEach((layer) => {
+        layer.stars.forEach((s) => {
+          const twinkle = reduceMotion ? 0.85 : 0.55 + 0.45 * Math.sin(now * 0.001 * s.speed + s.phase);
+          const px = s.x * w + curX * layer.parallax;
+          const py = s.y * h + curY * layer.parallax;
+          ctx.globalAlpha = s.baseOpacity * twinkle;
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(px, py, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      });
+      ctx.globalAlpha = 1;
+
+      maybeSpawnShootingStar(now);
+      shootingStars = shootingStars.filter((s) => now - s.born < s.life);
+      shootingStars.forEach((s) => {
+        const t = (now - s.born) / s.life;
+        const dist = t * 220;
+        const x = s.x + s.vx * dist * 0.4;
+        const y = s.y + s.vy * dist * 0.4;
+        const tailX = x - s.vx * 26;
+        const tailY = y - s.vy * 26;
+        const alpha = Math.sin(t * Math.PI);
+        const grad = ctx.createLinearGradient(x, y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(tailX, tailY);
+        ctx.stroke();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(draw);
   })();
 
   // Reveal entries on scroll
