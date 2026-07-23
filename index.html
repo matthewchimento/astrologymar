@@ -445,18 +445,6 @@
     font-size: 1.4rem;
   }
 
-  .end-heart {
-    margin-top: 34px;
-    font-size: 2.2rem;
-    color: var(--gold);
-    animation: heartbeat 2.6s ease-in-out infinite;
-  }
-
-  @keyframes heartbeat {
-    0%, 100% { transform: scale(1); opacity: 0.85; }
-    50% { transform: scale(1.12); opacity: 1; }
-  }
-
   @media (max-width: 760px) {
     .track { left: 24px; }
     .node { left: 24px; width: 38px; height: 38px; font-size: 1.05rem; }
@@ -777,7 +765,6 @@
 
   <section class="epilogue">
     <p class="sign">Mar Sothena, I love you so much.</p>
-    <div class="end-heart">♥︎</div>
   </section>
 </main>
 
@@ -1046,6 +1033,8 @@
     function getActiveGlyph() {
       const heroRect = heroEl.getBoundingClientRect();
       if (heroRect.bottom > window.innerHeight * 0.5) return '♥︎';
+      const nearBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 60;
+      if (nearBottom) return '♥︎';
       return entryGlyphs[activeEntryIndex];
     }
     const entryEls = Array.from(document.querySelectorAll('.entry'));
