@@ -75,7 +75,7 @@
     padding: 40px 20px;
   }
 
-  .hero .kicker {
+  .kicker {
     letter-spacing: 0.35em;
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -256,6 +256,130 @@
     padding-top: 14px;
   }
 
+  .charts {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .charts.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .charts h2 {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    color: var(--text);
+    margin: 0 0 14px;
+  }
+
+  .charts > p.intro {
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 46px;
+    line-height: 1.7;
+    font-size: 0.98rem;
+  }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    text-align: left;
+    margin-bottom: 50px;
+  }
+
+  .chart-card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 26px 28px;
+  }
+
+  .chart-card h3 {
+    margin: 0 0 4px;
+    font-size: 1.4rem;
+  }
+
+  .chart-card .rising {
+    display: block;
+    color: var(--gold-dim);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+
+  .chart-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chart-card li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+
+  .chart-card li:first-child { border-top: none; }
+
+  .chart-card .glyph {
+    color: var(--gold);
+    width: 1.1em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .chart-card .planet {
+    color: var(--text);
+    min-width: 68px;
+  }
+
+  .synastry {
+    text-align: left;
+  }
+
+  .synastry h3 {
+    text-align: center;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    margin-bottom: 26px;
+  }
+
+  .synastry-item {
+    border-left: 2px solid var(--line);
+    padding: 4px 0 4px 18px;
+    margin-bottom: 22px;
+  }
+
+  .synastry-item:last-child { margin-bottom: 0; }
+
+  .synastry-item h4 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .synastry-item p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
   .epilogue {
     max-width: 640px;
     margin: 0 auto;
@@ -291,6 +415,7 @@
       padding-left: 60px;
     }
     .card { width: 100%; }
+    .chart-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -478,6 +603,72 @@
       </div>
     </div>
 
+  </section>
+
+  <section class="charts">
+    <div class="kicker">written in both of us</div>
+    <h2>Our Charts</h2>
+    <p class="intro">Not just the sky on the days that mattered — the sky the day each of us was born. Leo rising meets Gemini rising: a warm, confident first impression paired with a quick, curious one. From there, it gets more interesting.</p>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Matt</h3>
+        <span class="rising">Leo Rising</span>
+        <ul>
+          <li><span class="glyph">☉</span><span class="planet">Sun</span> Capricorn</li>
+          <li><span class="glyph">☽</span><span class="planet">Moon</span> Sagittarius</li>
+          <li><span class="glyph">☿</span><span class="planet">Mercury</span> Capricorn</li>
+          <li><span class="glyph">♀</span><span class="planet">Venus</span> Aquarius</li>
+          <li><span class="glyph">♂</span><span class="planet">Mars</span> Libra</li>
+          <li><span class="glyph">♃</span><span class="planet">Jupiter</span> Pisces</li>
+          <li><span class="glyph">♄</span><span class="planet">Saturn</span> Aries</li>
+          <li><span class="glyph">♅</span><span class="planet">Uranus</span> Aquarius</li>
+          <li><span class="glyph">♆</span><span class="planet">Neptune</span> Aquarius</li>
+          <li><span class="glyph">♇</span><span class="planet">Pluto</span> Sagittarius</li>
+        </ul>
+      </div>
+
+      <div class="chart-card">
+        <h3>Mar</h3>
+        <span class="rising">Gemini Rising</span>
+        <ul>
+          <li><span class="glyph">☉</span><span class="planet">Sun</span> Capricorn</li>
+          <li><span class="glyph">☽</span><span class="planet">Moon</span> Aries</li>
+          <li><span class="glyph">☿</span><span class="planet">Mercury</span> Capricorn</li>
+          <li><span class="glyph">♀</span><span class="planet">Venus</span> Aquarius</li>
+          <li><span class="glyph">♂</span><span class="planet">Mars</span> Capricorn</li>
+          <li><span class="glyph">♃</span><span class="planet">Jupiter</span> Sagittarius</li>
+          <li><span class="glyph">♄</span><span class="planet">Saturn</span> Pisces</li>
+          <li><span class="glyph">♅</span><span class="planet">Uranus</span> Capricorn</li>
+          <li><span class="glyph">♆</span><span class="planet">Neptune</span> Capricorn</li>
+          <li><span class="glyph">♇</span><span class="planet">Pluto</span> Sagittarius</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="synastry">
+      <h3>Where They Touch</h3>
+
+      <div class="synastry-item">
+        <h4>Capricorn is the shared foundation</h4>
+        <p>Between the two charts, Capricorn holds seven placements — both Suns, both Mercuries, and her Mars, Uranus, and Neptune besides. Whatever else is going on, there's a load-bearing wall of the same practical, patient, quietly ambitious material running under both of you.</p>
+      </div>
+
+      <div class="synastry-item">
+        <h4>Venus in Aquarius, for both</h4>
+        <p>Same sign, same planet of love and taste. Aquarius Venus doesn't love in straight lines — it wants independence inside the closeness, friendship underneath the romance, room to be a little weird together.</p>
+      </div>
+
+      <div class="synastry-item">
+        <h4>Her Aries Moon meets his Aries Saturn</h4>
+        <p>Her instinctive, first-reaction emotional sign lands exactly on his commitment planet. Aries doesn't do patient waiting — it acts. Here, that impulse (her Moon) meets something built to hold steady (his Saturn) in the very same sign.</p>
+      </div>
+
+      <div class="synastry-item">
+        <h4>Pluto in Sagittarius, both — with an asterisk</h4>
+        <p>Pluto moves slowly enough that most people close in age share a sign with it, so this one's less "written for us" and more "written for our generation." Still true, though: both of you process depth and transformation through a Sagittarius lens — restless for truth, allergic to small thinking.</p>
+      </div>
+    </div>
   </section>
 
   <section class="epilogue">
@@ -685,14 +876,14 @@
   })();
 
   // Reveal entries on scroll
-  const entries = document.querySelectorAll('.entry');
+  const entries = document.querySelectorAll('.entry, .charts');
   const io = new IntersectionObserver((items) => {
     items.forEach((item) => {
       if (item.isIntersecting) {
         item.target.classList.add('visible');
       }
     });
-  }, { threshold: 0.25 });
+  }, { threshold: 0.15 });
   entries.forEach((el) => io.observe(el));
 
   // Expand/collapse detail
