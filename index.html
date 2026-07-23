@@ -839,16 +839,175 @@
       window.addEventListener('touchcancel', clearPointer);
     }
 
-    // Constellations: fixed patterns (relative to viewport) of bigger stars
-    // joined by lines, which brighten as the pointer comes near.
-    const constellations = [
-      { points: [[0.08, 0.14], [0.14, 0.22], [0.20, 0.15], [0.27, 0.24], [0.33, 0.16]] },
-      { points: [[0.75, 0.10], [0.82, 0.18], [0.90, 0.11], [0.82, 0.27]], edges: [[0, 1], [1, 2], [1, 3]] },
-      { points: [[0.10, 0.62], [0.16, 0.70], [0.14, 0.80], [0.22, 0.76]], edges: [[0, 1], [1, 2], [1, 3], [2, 3]] },
-      { points: [[0.80, 0.55], [0.88, 0.60], [0.92, 0.70], [0.84, 0.72], [0.78, 0.66]], edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]] },
-      { points: [[0.44, 0.86], [0.51, 0.91], [0.58, 0.85]] },
-    ];
-    constellations.forEach((c) => { c.glow = 0; });
+    // Turn a glyph (Neptune, Saturn, a zodiac sign...) into a sparse
+    // constellation. Render it to a hidden canvas, thin the filled
+    // strokes down to a 1px-wide skeleton (Zhang-Suen thinning) so we
+    // trace the glyph's actual medial line instead of the outline of a
+    // filled blob, group the skeleton into connected strokes, walk each
+    // one in order (nearest-unvisited-neighbor reliably follows a thin
+    // line), then sample points evenly along that walk and connect
+    // consecutive points.
+    function buildGlyphConstellation(glyphChar, targetCount) {
+      const size = 150;
+      const off = document.createElement('canvas');
+      off.width = size;
+      off.height = size;
+      const octx = off.getContext('2d');
+      octx.fillStyle = '#fff';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.font = `bold ${Math.round(size * 0.76)}px Arial, sans-serif`;
+      octx.fillText(glyphChar + '︎', size / 2, size / 2 + size * 0.05);
+      const img = octx.getImageData(0, 0, size, size).data;
+      let grid = new Uint8Array(size * size);
+      for (let i = 0; i < size * size; i++) grid[i] = img[i * 4 + 3] > 40 ? 1 : 0;
+
+      const get = (x, y) => (x < 0 || y < 0 || x >= size || y >= size) ? 0 : grid[y * size + x];
+      function thinPass(step) {
+        const toRemove = [];
+        for (let y = 1; y < size - 1; y++) {
+          for (let x = 1; x < size - 1; x++) {
+            if (!get(x, y)) continue;
+            const p2 = get(x, y - 1), p3 = get(x + 1, y - 1), p4 = get(x + 1, y), p5 = get(x + 1, y + 1),
+                  p6 = get(x, y + 1), p7 = get(x - 1, y + 1), p8 = get(x - 1, y), p9 = get(x - 1, y - 1);
+            const n = [p2, p3, p4, p5, p6, p7, p8, p9];
+            const B = n.reduce((a, b) => a + b, 0);
+            if (B < 2 || B > 6) continue;
+            let A = 0;
+            for (let i = 0; i < 8; i++) if (n[i] === 0 && n[(i + 1) % 8] === 1) A++;
+            if (A !== 1) continue;
+            if (step === 0) {
+              if (p2 * p4 * p6 !== 0) continue;
+              if (p4 * p6 * p8 !== 0) continue;
+            } else {
+              if (p2 * p4 * p8 !== 0) continue;
+              if (p2 * p6 * p8 !== 0) continue;
+            }
+            toRemove.push(y * size + x);
+          }
+        }
+        toRemove.forEach((idx) => { grid[idx] = 0; });
+        return toRemove.length > 0;
+      }
+      for (let iter = 0; iter < 40; iter++) {
+        const c1 = thinPass(0);
+        const c2 = thinPass(1);
+        if (!c1 && !c2) break;
+      }
+
+      const skeleton = [];
+      const key = (x, y) => x + ',' + y;
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          if (get(x, y)) skeleton.push([x, y]);
+        }
+      }
+      if (skeleton.length === 0) return { points: [], edges: [] };
+
+      const bset = new Set(skeleton.map(([x, y]) => key(x, y)));
+      const visited = new Set();
+      const components = [];
+      const neighbors8 = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+      skeleton.forEach(([x, y]) => {
+        const k = key(x, y);
+        if (visited.has(k)) return;
+        const comp = [];
+        const stack = [[x, y]];
+        visited.add(k);
+        while (stack.length) {
+          const [cx, cy] = stack.pop();
+          comp.push([cx, cy]);
+          neighbors8.forEach(([dx, dy]) => {
+            const nk = key(cx + dx, cy + dy);
+            if (bset.has(nk) && !visited.has(nk)) {
+              visited.add(nk);
+              stack.push([cx + dx, cy + dy]);
+            }
+          });
+        }
+        components.push(comp);
+      });
+
+      const bigComponents = components.filter((c) => c.length >= 4).sort((a, b) => b.length - a.length);
+      if (bigComponents.length === 0) return { points: [], edges: [] };
+
+      function orderComponent(comp) {
+        const remaining = comp.slice();
+        const path = [remaining.shift()];
+        while (remaining.length) {
+          const last = path[path.length - 1];
+          let bestIdx = 0, bestD = Infinity;
+          for (let i = 0; i < remaining.length; i++) {
+            const dx = remaining[i][0] - last[0], dy = remaining[i][1] - last[1];
+            const d = dx * dx + dy * dy;
+            if (d < bestD) { bestD = d; bestIdx = i; }
+          }
+          path.push(remaining.splice(bestIdx, 1)[0]);
+        }
+        return path;
+      }
+
+      const orderedComponents = bigComponents.map(orderComponent);
+      const totalLen = orderedComponents.reduce((s, c) => s + c.length, 0);
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      skeleton.forEach(([x, y]) => {
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      });
+      const bw = maxX - minX || 1, bh = maxY - minY || 1;
+
+      const shares = orderedComponents.map((c) => Math.max(2, Math.round(targetCount * (c.length / totalLen))));
+      let shareDiff = targetCount - shares.reduce((s, v) => s + v, 0);
+      const largestIdx = shares.indexOf(Math.max(...shares));
+      shares[largestIdx] = Math.max(2, shares[largestIdx] + shareDiff);
+
+      const points = [];
+      const edges = [];
+      orderedComponents.forEach((comp, compIdx) => {
+        const share = shares[compIdx];
+        const startIdx = points.length;
+        for (let i = 0; i < share; i++) {
+          const ci = Math.floor((i * (comp.length - 1)) / Math.max(1, share - 1));
+          const [x, y] = comp[ci];
+          points.push([(x - minX) / bw, (y - minY) / bh]);
+        }
+        for (let i = 0; i < share - 1; i++) {
+          edges.push([startIdx + i, startIdx + i + 1]);
+        }
+      });
+
+      return { points, edges };
+    }
+
+    const glyphPointCount = window.innerWidth < 700 ? 22 : 30;
+    const glyphCache = {};
+    Array.from(document.querySelectorAll('.node')).forEach((node) => {
+      const g = node.textContent.trim().replace(/︎/g, '');
+      if (g && !glyphCache[g]) glyphCache[g] = buildGlyphConstellation(g, glyphPointCount);
+    });
+    const entryGlyphs = Array.from(document.querySelectorAll('.node')).map(
+      (node) => node.textContent.trim().replace(/︎/g, '')
+    );
+    const entryEls = Array.from(document.querySelectorAll('.entry'));
+
+    let activeEntryIndex = 0;
+    function updateActiveEntry() {
+      const centerY = window.innerHeight / 2;
+      let best = 0, bestD = Infinity;
+      entryEls.forEach((el, i) => {
+        const rect = el.getBoundingClientRect();
+        const d = Math.abs(rect.top + rect.height / 2 - centerY);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      activeEntryIndex = best;
+    }
+    window.addEventListener('scroll', () => requestAnimationFrame(updateActiveEntry), { passive: true });
+    updateActiveEntry();
+
+    let bigConstellationPoints = null;
+    let bigConstellationEdges = [];
+    let bigGlow = 0;
 
     let shootingStars = [];
     let nextShootTime = performance.now() + 2500;
@@ -892,50 +1051,68 @@
       });
       ctx.globalAlpha = 1;
 
-      constellations.forEach((c) => {
-        const pts = c.points.map(([nx, ny]) => ({
-          x: nx * w + curX * 26,
-          y: ny * h + curY * 26,
-        }));
+      const activeGlyph = entryGlyphs[activeEntryIndex];
+      const shape = glyphCache[activeGlyph];
+      if (shape && shape.points.length) {
+        if (!bigConstellationPoints || bigConstellationPoints.length !== shape.points.length) {
+          bigConstellationPoints = shape.points.map(() => [Math.random(), Math.random()]);
+        }
+        if (draw._lastGlyph !== activeGlyph) {
+          bigConstellationEdges = shape.edges;
+          draw._lastGlyph = activeGlyph;
+        }
+
+        const span = Math.min(w, h) * 0.62;
+        const cx = w / 2, cy = h * 0.46;
+        const lerpSpeed = reduceMotion ? 1 : 0.045;
+        const screenPts = bigConstellationPoints.map((p, i) => {
+          const tx = shape.points[i][0] - 0.5;
+          const ty = shape.points[i][1] - 0.5;
+          p[0] += (tx - p[0]) * lerpSpeed;
+          p[1] += (ty - p[1]) * lerpSpeed;
+          return {
+            x: cx + p[0] * span + curX * 18,
+            y: cy + p[1] * span + curY * 18,
+          };
+        });
 
         let target = 0;
         if (pointer) {
           let minDist = Infinity;
-          pts.forEach((pt) => {
+          screenPts.forEach((pt) => {
             const d = Math.hypot(pt.x - pointer.x, pt.y - pointer.y);
             if (d < minDist) minDist = d;
           });
-          target = minDist < 260 ? 1 - minDist / 260 : 0;
+          target = minDist < 300 ? 1 - minDist / 300 : 0;
         }
-        c.glow += (target - c.glow) * (reduceMotion ? 1 : 0.08);
+        bigGlow += (target - bigGlow) * (reduceMotion ? 1 : 0.08);
 
-        const edges = c.edges || pts.slice(0, -1).map((_, i) => [i, i + 1]);
-        ctx.strokeStyle = `rgba(227, 193, 126, ${0.16 + c.glow * 0.55})`;
-        ctx.lineWidth = 1.3 + c.glow * 2.2;
-        edges.forEach(([a, b]) => {
+        ctx.strokeStyle = `rgba(227, 193, 126, ${0.28 + bigGlow * 0.4})`;
+        ctx.lineWidth = 1.4 + bigGlow * 1.6;
+        bigConstellationEdges.forEach(([a, b]) => {
+          if (!screenPts[a] || !screenPts[b]) return;
           ctx.beginPath();
-          ctx.moveTo(pts[a].x, pts[a].y);
-          ctx.lineTo(pts[b].x, pts[b].y);
+          ctx.moveTo(screenPts[a].x, screenPts[a].y);
+          ctx.lineTo(screenPts[b].x, screenPts[b].y);
           ctx.stroke();
         });
 
-        pts.forEach((pt, i) => {
-          const twinkle = reduceMotion ? 0.9 : 0.7 + 0.3 * Math.sin(now * 0.0006 + i);
-          const r = 3 + c.glow * 3;
-          if (c.glow > 0.04) {
-            ctx.globalAlpha = c.glow * 0.3;
-            ctx.fillStyle = 'rgba(227, 193, 126, 1)';
-            ctx.beginPath();
-            ctx.arc(pt.x, pt.y, r + 6 * c.glow, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.globalAlpha = Math.min(1, (0.7 + c.glow * 0.3) * twinkle);
+        screenPts.forEach((pt, i) => {
+          const twinkle = reduceMotion ? 0.9 : 0.65 + 0.35 * Math.sin(now * 0.0006 + i);
+          const r = 2.6 + bigGlow * 2;
+          ctx.globalAlpha = bigGlow * 0.35;
+          ctx.fillStyle = 'rgba(227, 193, 126, 1)';
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r + 7 * bigGlow, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.globalAlpha = Math.min(1, (0.55 + bigGlow * 0.45) * twinkle);
           ctx.fillStyle = '#fff';
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
           ctx.fill();
         });
-      });
+      }
       ctx.globalAlpha = 1;
 
       maybeSpawnShootingStar(now);
