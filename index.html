@@ -438,11 +438,23 @@
   }
 
   .epilogue .sign {
-    margin-top: 30px;
+    margin-top: 0;
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     color: var(--text);
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+  }
+
+  .end-heart {
+    margin-top: 34px;
+    font-size: 2.2rem;
+    color: var(--gold);
+    animation: heartbeat 2.6s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.12); opacity: 1; }
   }
 
   @media (max-width: 760px) {
@@ -764,9 +776,8 @@
   </section>
 
   <section class="epilogue">
-    <h2>The sky keeps moving.</h2>
-    <p>So do we. Every one of these dates is real, and so was everything the sky was doing on each one — I just went and looked it up. Here's to whatever era comes next.</p>
-    <p class="sign">Mar, I love you. — Matt</p>
+    <p class="sign">Mar Sothena, I love you so much.</p>
+    <div class="end-heart">♥︎</div>
   </section>
 </main>
 
@@ -1027,14 +1038,14 @@
       const g = node.textContent.trim().replace(/︎/g, '');
       if (g && !glyphCache[g]) glyphCache[g] = buildGlyphConstellation(g, glyphPointCount);
     });
-    glyphCache['♥'] = buildGlyphConstellation('♥', glyphPointCount, 'outline');
+    glyphCache['♥︎'] = buildGlyphConstellation('♥︎', glyphPointCount, 'outline');
     const entryGlyphs = Array.from(document.querySelectorAll('.node')).map(
       (node) => node.textContent.trim().replace(/︎/g, '')
     );
     const heroEl = document.querySelector('.hero');
     function getActiveGlyph() {
       const heroRect = heroEl.getBoundingClientRect();
-      if (heroRect.bottom > window.innerHeight * 0.5) return '♥';
+      if (heroRect.bottom > window.innerHeight * 0.5) return '♥︎';
       return entryGlyphs[activeEntryIndex];
     }
     const entryEls = Array.from(document.querySelectorAll('.entry'));
